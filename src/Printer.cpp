@@ -12,16 +12,14 @@ void Printer::printToConsole(std::vector<CpuCore> const& cpu_cores, std::string 
 {
     std::cout << "Printing to console..." << std::endl;
     std::cout << "Current time: " << time << std::endl;
-    for (const auto& core : cpu_cores)
+    for (const auto& cpu_core : cpu_cores)
     {
-        std::cout << "Core Name: cpu" << core.number << std::endl;
-        std::cout << "Core Load: " << core.load << std::endl;
+        std::cout << "Core Name: cpu" << cpu_core.number << " Core Load: " << cpu_core.load << "%" << std::endl;
     }
 }
-void Printer::printToConsoleSpecific(CpuCore const& cpu_core, std::string const& time)
+void Printer::printToConsoleSpecific(std::vector<CpuCore> const& cpu_cores, std::string const& time, int core)
 {
     std::cout << "Printing to console..." << std::endl;
     std::cout << "Current time: " << time << std::endl;
-    std::cout << "Core Name: cpu" << cpu_core.number << std::endl;
-    std::cout << "Core Load: " << cpu_core.load << std::endl;
+    std::cout << "Core Name: cpu" << cpu_cores[core].number << " Core Load: " << cpu_cores[core].load << "%" << std::endl;
 }

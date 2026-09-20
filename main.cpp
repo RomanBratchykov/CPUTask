@@ -11,6 +11,7 @@
 #include <thread>
 #include <unistd.h>
 #include <cstring>
+#include <ostream>
 
 
 enum class State
@@ -55,9 +56,17 @@ int main(int argc,char** argv)
                     printf("Parsed %d cores\n", static_cast<int>(cores.size()));
                     auto now = std::chrono::system_clock::now();
                     auto time = std::chrono::system_clock::to_time_t(now);
-                    timestr = std::ctime(&time);
+                    std::tm localTime = *std::localtime(&time);
+
+                    std::ostringstream oss;
+                    oss << std::put_time(&localTime, "%H:%M:%S");
+
+                    timestr = oss.str();
                     printf("Current time: %s", std::ctime(&time));
                     state = State::Run;
+                    printf("Welcome to the CPU Monitor \n");
+                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for selected core and selected time\n4:Enter realtime monitoring and write to file.\n5:Enter realtime monitoring and write to file for specific core and specific time.\n");
+
                 }
                 catch(std::exception& e)
                 {
@@ -70,8 +79,7 @@ int main(int argc,char** argv)
             {
                 try
                 {
-                    printf("Welcome to the CPU Monitor \n");
-                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to txt file for each core and selected time.\n3:Save info to txt file for selected core and selected time\n4:Enter realtime monitoring and write to file.\n5:Enter realtime monitoring and write to file for specific core and specific time.\nEnter your choice:\n");
+                    printf("Select task:\n");
                     int menu = 0;
                     scanf("%d", &menu);
                     switch (menu)
@@ -81,8 +89,19 @@ int main(int argc,char** argv)
                             Printer::printToConsole(cores, timestr);
                             break;
                         case 2:
-                            printf("Starting writing info to txt file\n");
-                            break;
+                        {
+                            printf("Enter core number: \n");
+                            int core = 0;
+                            scanf("%d", &core);
+                            if (core < 0 || static_cast<size_t>(core) >= cores.size())
+                            {
+                                printf("Error, you are not in core range: \n");
+                                break;
+                            }
+                            printf("Info about core %d\n", core);
+                            Printer::printToConsoleSpecific(cores, timestr, core);
+                        }
+                        break;
                         case 3:
                             printf("Entering realtime monitoring\n");
                             break;
