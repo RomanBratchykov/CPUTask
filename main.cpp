@@ -4,9 +4,19 @@
 #include <stdio.h>
 #include <atomic>
 #include <cstring>
+#include <chrono>
+#include <ctime>
+
+#define BUFFER_SIZE 4096
+
+enum class State
+{
+    Init,
+    Run,
+    Stop
+};
 
 std::atomic<bool> running{true};
-
 
 void my_handler(int s){
     const char message[] = "/nGently stopping/n";
@@ -20,13 +30,58 @@ int main(int argc,char** argv)
     sig.sa_handler = my_handler;
     sig.sa_flags = 0;
     sigemptyset(&sig.sa_mask);
-    if (sigaction(SIGINT, &sig, NULL) == -1)
-    {
-        return 1;
-    }
+    State state = State::Init;
     while (running)
     {
+        switch(state)
+        {
+            case State::Init:
+                printf("Initializing\nReading file..\n");
+                auto now = std::chrono::system_clock::now();
+                auto time = std::chrono::system_clock::to_time_t(now);
+                int fd = open("/proc/stat", O_RDONLY);
+                if (fd == -1)
+                {
+                    printf("Error opening /proc/stat\n");
+                    return 1;
+                }
+                printf("File read successfully\n");
+                state = State::Run;
+                break;
+            case State::Run:
+                printf("Running\n");
+                printf("Enter desired proccess:/n1:Show CPU usage for now./n2:Start writing info to txt file for each core and selected time./n3:Save info to txt file for selected core and selected time/n4:Enter realtime monitoring and write to file./n5:Enter realtime monitoring and write to file for specific core and specific time./nCtrl+C to stop.");
+                int menu = 0;
+                scanf("%d", &menu);
+                switch (menu)
+                {
+                    case 1:
 
+                        printf("Showing CPU usage for now\n");
+
+                        break;
+                    case 2:
+                        printf("Starting writing info to txt file\n");
+                        break;
+                    case 3:
+                        printf("Entering realtime monitoring\n");
+                        break;
+                    case 4:
+                        printf("Entering realtime monitoring and writing to file\n");
+                        break;
+                    default:
+                        printf("Invalid option\n");
+                        break;
+                }
+                if (sigaction(SIGINT, &sig, NULL) == -1)
+                {
+                    state = State::Stop;
+                }
+                break;
+            case State::Stop:
+                running = false;
+                break;
+        }
     }
     return 0;
 }

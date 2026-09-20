@@ -1,10 +1,8 @@
-#include <filesystem>
+#pragma once
 
 class Printer
 {
 public:
-    static void print(std::filesystem::path const& path)
-    {
-
-    }
+    static void printTo(std::filesystem::path const& path, int interval);
+    static void printToConsole();
 };
