@@ -14,9 +14,10 @@ void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatil
         throw std::invalid_argument("Interval must be greater than zero");
     }
 
-    std::ofstream file("output.txt", std::ios::app);
+    std::ofstream file("/tmp/output.txt", std::ios::app);
     if (!file.is_open())
     {
+        perror("fopen");
         throw std::runtime_error("Unable to open file for writing");
     }
 
@@ -42,7 +43,7 @@ void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatil
 
 void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& time)
 {
-    std::ofstream file("output.txt", std::ios::app);
+    std::ofstream file("/tmp/output.txt", std::ios::app);
     if (!file.is_open())
     {
         throw std::runtime_error("Unable to open file for writing");
@@ -61,7 +62,7 @@ void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& ti
 
 void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& time, int core)
 {
-    std::ofstream file("output.txt", std::ios::app);
+    std::ofstream file("/tmp/output.txt", std::ios::app);
     if (!file.is_open())
     {
         throw std::runtime_error("Unable to open file for writing");
