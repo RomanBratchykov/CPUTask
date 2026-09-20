@@ -66,12 +66,4 @@ std::vector<CpuCore> Parser::parseAll()
 
     return cores;
 }
-// void Parser::update(std::vector<CpuCore>& cpu_cores)
-// {
-//     std::ifstream procStat("/proc/stat");
-//     if (!procStat)
-//     {
-//         throw std::runtime_error("Unable to open /proc/stat");
-//     }
-//
-// }
+

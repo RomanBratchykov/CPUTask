@@ -21,21 +21,26 @@ enum class State
     Stop
 };
 
-std::atomic<bool> running{true};
+volatile sig_atomic_t running = 1;
 
-void my_handler(int s){
+void my_handler(int){
     const char message[] = "\nGently stopping\n";
-    write(STDOUT_FILENO, message, strlen(message));
-    running = false;
+    write(STDOUT_FILENO, message, sizeof(message) - 1);
+    running = 0;
 }
 
-int main(int argc,char** argv)
+int main()
 {
     State state = State::Init;
     struct sigaction sig{};
     sig.sa_handler = my_handler;
     sig.sa_flags = 0;
     sigemptyset(&sig.sa_mask);
+    if (sigaction(SIGINT, &sig, nullptr) == -1)
+    {
+        perror("sigaction");
+        return 1;
+    }
     std::vector<CpuCore> cores;
     std::string timestr;
     std::string filepath = "";
@@ -112,7 +117,7 @@ int main(int argc,char** argv)
                             printf("Enter interval in milliseconds, Ctrl+C to stop: \n");
                             int interval = 0;
                             scanf("%d", &interval);
-                            Printer::printToFile(filepath, interval);
+                            Printer::printToFile(filepath, interval, running);
                         }
                             break;
                         case 4:
@@ -121,10 +126,6 @@ int main(int argc,char** argv)
                         default:
                             printf("Invalid option\n");
                             break;
-                    }
-                    if (sigaction(SIGINT, &sig, NULL) == -1)
-                    {
-                        state = State::Stop;
                     }
                 }
                 catch(std::exception& e)

@@ -3,6 +3,7 @@
 #include "Parser.h"
 
 #include <filesystem>
+#include <signal.h>
 #include <vector>
 #include <string>
 
@@ -10,7 +11,7 @@
 class Printer
 {
 public:
-    static void printToFile(std::filesystem::path const& path, int interval);
+    static void printToFile(std::filesystem::path const& path,int interval,volatile sig_atomic_t const& running);
 
     static void printToFile(std::filesystem::path const& path, std::vector<CpuCore> const& cpu_cores, std::string const& time);
 

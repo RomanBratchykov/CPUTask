@@ -3,43 +3,50 @@
 
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 #include <thread>
 
 
-void Printer::printToFile(std::filesystem::path const& path, int interval)
+void Printer::printToFile(std::filesystem::path const& path, int interval, volatile sig_atomic_t const& running)
 {
-    std::ofstream file(path);
+    if (interval <= 0)
+    {
+        throw std::invalid_argument("Interval must be greater than zero");
+    }
+
+    std::ofstream file(path, std::ios::app);
     if (!file.is_open())
     {
         throw std::runtime_error("Unable to open file for writing");
     }
 
-    if (file.is_open())
+    while (running)
     {
-        while (true)
+        printf("Writing to file...\n");
+        auto cores_first = Parser::parseAll();
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+        if (!running)
         {
-            printf("Writing to file...\n");
-            auto cores_first = Parser::parseAll();
-            std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-            auto cores_second = Parser::parseAll();
-            auto cores = Calculator::acceptLoad(cores_first, cores_second);
-
-            auto now = std::chrono::system_clock::now();
-            auto time = std::chrono::system_clock::to_time_t(now);
-            std::tm localTime = *std::localtime(&time);
-            char buffer[80];
-            strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
-            std::string timestr(buffer);
-
-            file << "Current time: " << timestr << std::endl;
-            for (const auto& cpu_core : cores)
-            {
-                file << "Core Name: cpu" << cpu_core.number << " Core Load: " << cpu_core.load << "%" << std::endl;
-            }
-            file << std::endl;
+            break;
         }
-    }
 
+        auto cores_second = Parser::parseAll();
+        auto cores = Calculator::acceptLoad(cores_first, cores_second);
+
+        auto now = std::chrono::system_clock::now();
+        auto time = std::chrono::system_clock::to_time_t(now);
+        std::tm localTime = *std::localtime(&time);
+        char buffer[80];
+        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
+        std::string timestr(buffer);
+
+        file << "Current time: " << timestr << std::endl;
+        for (const auto& cpu_core : cores)
+        {
+            file << "Core Name: cpu" << cpu_core.number << " Core Load: " << cpu_core.load << "%" << std::endl;
+        }
+        file << std::endl;
+    }
 }
 void Printer::printToFile(std::filesystem::path const& path, std::vector<CpuCore> const& cpu_cores, std::string const& time)
 {
