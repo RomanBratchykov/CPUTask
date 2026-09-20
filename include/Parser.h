@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 
+
 struct CpuCore
 {
     unsigned int number;
@@ -14,6 +15,7 @@ struct CpuCore
     std::uint64_t irq;
     std::uint64_t softirq;
     std::uint64_t steal;
+    std::uint64_t load;
 };
 
 class Parser
