@@ -13,6 +13,8 @@
 #include <cstring>
 #include <iostream>
 
+#include "include/Parser.h"
+
 
 enum class State
 {
@@ -54,12 +56,7 @@ int main()
                 try
                 {
                     printf("Initializing\nReading file..\n");
-                    auto cores_first = Parser::parseAll();
-                    printf("Conting load..\n");
-                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                    auto cores_second = Parser::parseAll();
-                    printf("Creating load data..\n");
-                    cores = Calculator::acceptLoad(cores_first, cores_second);
+                    auto cores = Parser::parseAll();
                     printf("Parsed %d cores\n", static_cast<int>(cores.size()));
                     auto now = std::chrono::system_clock::now();
                     auto time = std::chrono::system_clock::to_time_t(now);
@@ -74,7 +71,7 @@ int main()
                     std::cin >> filepath;
                     state = State::Run;
                     printf("Welcome to the CPU Monitor \n");
-                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n4:Enter realtime monitoring and write to file.\n5:Enter realtime monitoring and write to file for specific core and specific time.\n");
+                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n");
 
                 }
                 catch(std::exception& e)
@@ -94,6 +91,7 @@ int main()
                     {
                         case 1:
                             printf("Showing CPU usage for now\n");
+                            Parser::updateAll(cores);
                             Printer::printToConsole(cores, timestr);
                             Printer::printToFile(filepath, cores, timestr);
                             break;
@@ -108,6 +106,7 @@ int main()
                                 break;
                             }
                             printf("Info about core %d\n", core);
+                            Parser::updateAll(cores);
                             Printer::printToConsoleSpecific(cores, timestr, core);
                             Printer::printToFile(filepath, cores, timestr, core);
                         }
@@ -117,14 +116,12 @@ int main()
                             printf("Enter interval in milliseconds, Ctrl+C to stop: \n");
                             int interval = 0;
                             scanf("%d", &interval);
-                            Printer::printToFile(filepath, interval, running);
+                            Parser::updateAll(cores);
+                            Printer::printToFile(filepath, interval, cores, running);
                         }
                             break;
-                        case 4:
-                            printf("Entering realtime monitoring and writing to file\n");
-                            break;
                         default:
-                            printf("Invalid option\n");
+                            printf("Invalid option, please try again.\n");
                             break;
                     }
                 }

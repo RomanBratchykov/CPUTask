@@ -7,7 +7,7 @@
 #include <thread>
 
 
-void Printer::printToFile(std::filesystem::path const& path, int interval, volatile sig_atomic_t const& running)
+void Printer::printToFile(std::filesystem::path const& path, int interval, std::vector<CpuCore>& cpu_cores, volatile sig_atomic_t const& running)
 {
     if (interval <= 0)
     {
@@ -23,25 +23,8 @@ void Printer::printToFile(std::filesystem::path const& path, int interval, volat
     while (running)
     {
         printf("Writing to file...\n");
-        auto cores_first = Parser::parseAll();
-        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
-        if (!running)
-        {
-            break;
-        }
-
-        auto cores_second = Parser::parseAll();
-        auto cores = Calculator::acceptLoad(cores_first, cores_second);
-
-        auto now = std::chrono::system_clock::now();
-        auto time = std::chrono::system_clock::to_time_t(now);
-        std::tm localTime = *std::localtime(&time);
-        char buffer[80];
-        strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", &localTime);
-        std::string timestr(buffer);
-
-        file << "Current time: " << timestr << std::endl;
-        for (const auto& cpu_core : cores)
+        Parser::updateAll(cpu_cores);
+        for (const auto& cpu_core : cpu_cores)
         {
             file << "Core Name: cpu" << cpu_core.number << " Core Load: " << cpu_core.load << "%" << std::endl;
         }
