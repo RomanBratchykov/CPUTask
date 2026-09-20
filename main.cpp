@@ -12,6 +12,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <iostream>
+#include <time.h>
 
 #include "include/Parser.h"
 
@@ -56,17 +57,13 @@ int main()
                 try
                 {
                     printf("Initializing\nReading file..\n");
-                    auto cores = Parser::parseAll();
+                    cores = Parser::parseAll();
                     printf("Parsed %d cores\n", static_cast<int>(cores.size()));
+                    timestr.resize(32);
                     auto now = std::chrono::system_clock::now();
-                    auto time = std::chrono::system_clock::to_time_t(now);
-                    std::tm localTime = *std::localtime(&time);
-
-                    std::ostringstream oss;
-                    oss << std::put_time(&localTime, "%H:%M:%S");
-
-                    timestr = oss.str();
-                    printf("Current time: %s", std::ctime(&time));
+                    auto ts = std::chrono::system_clock::to_time_t(now);
+                    strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
+                    printf("Current time: %s", std::ctime(&ts));
                     printf("enter filepath for saving your info:\n");
                     std::cin >> filepath;
                     state = State::Run;
@@ -90,11 +87,16 @@ int main()
                     switch (menu)
                     {
                         case 1:
+                        {
                             printf("Showing CPU usage for now\n");
                             Parser::updateAll(cores);
+                            auto now = std::chrono::system_clock::now();
+                            auto ts = std::chrono::system_clock::to_time_t(now);
+                            strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Printer::printToConsole(cores, timestr);
                             Printer::printToFile(filepath, cores, timestr);
                             break;
+                        }
                         case 2:
                         {
                             printf("Enter core number: \n");
@@ -106,6 +108,9 @@ int main()
                                 break;
                             }
                             printf("Info about core %d\n", core);
+                            auto now = std::chrono::system_clock::now();
+                            auto ts = std::chrono::system_clock::to_time_t(now);
+                            strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Parser::updateAll(cores);
                             Printer::printToConsoleSpecific(cores, timestr, core);
                             Printer::printToFile(filepath, cores, timestr, core);
@@ -116,6 +121,9 @@ int main()
                             printf("Enter interval in milliseconds, Ctrl+C to stop: \n");
                             int interval = 0;
                             scanf("%d", &interval);
+                            auto now = std::chrono::system_clock::now();
+                            auto ts = std::chrono::system_clock::to_time_t(now);
+                            strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Parser::updateAll(cores);
                             Printer::printToFile(filepath, interval, cores, running);
                         }
