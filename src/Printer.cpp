@@ -58,9 +58,9 @@ void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatil
     while (running)
     {
         printf("Writing to file...\n");
+        Parser::updateAll(cpu_cores);
         std::this_thread::sleep_for(std::chrono::milliseconds(interval));
         Parser::updateAll(cpu_cores);
-
         auto ts = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + std::chrono::hours(3));
         char buf[32];
         strftime(buf, sizeof(buf), "%H:%M:%S", std::localtime(&ts));
@@ -81,8 +81,10 @@ void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& ti
         throw std::runtime_error("Unable to open file for writing");
     }
 
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     printf("Writing to file...\n");
     file << "Current time: " << time << std::endl;
+    Parser::updateAll(cpu_cores);
     for (const auto& cpu_core : cpu_cores)
     {
         file << "Core Name: cpu" << cpu_core.number << " Core Load: " << std::fixed << std::setprecision(2) << cpu_core.load << "%" << std::endl;
@@ -99,6 +101,7 @@ void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& ti
     {
         throw std::runtime_error("Unable to open file for writing");
     }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
     printf("Writing to file...\n");
 
@@ -115,6 +118,7 @@ void Printer::printToConsole(std::vector<CpuCore>& cpu_cores, std::string const&
 {
     std::cout << "Printing to console..." << std::endl;
     std::cout << "Current time: " << time << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     for (const auto& cpu_core : cpu_cores)
     {
         std::cout << "Core Name: cpu" << cpu_core.number << " Core Load: " << std::fixed << std::setprecision(2) << cpu_core.load << "%" << std::endl;
@@ -123,7 +127,9 @@ void Printer::printToConsole(std::vector<CpuCore>& cpu_cores, std::string const&
 
 void Printer::printToConsoleSpecific(std::vector<CpuCore>& cpu_cores, std::string const& time, int core)
 {
+
     std::cout << "Printing to console..." << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     std::cout << "Current time: " << time << std::endl;
     std::cout << "Core Name: cpu" << cpu_cores[core].number << " Core Load: " << std::fixed << std::setprecision(2) << cpu_cores[core].load << "%" << std::endl;
 }

@@ -62,7 +62,6 @@ std::vector<CpuCore> Parser::parseAll()
         CpuCore core{};
         if (parseCpuLine(line, core))
         {
-            std::copy(std::begin(core.curr), std::end(core.curr), std::begin(core.prev));
             cores.push_back(core);
         }
     }

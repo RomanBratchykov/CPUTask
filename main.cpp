@@ -64,6 +64,7 @@ int main()
                     auto ts = std::chrono::system_clock::to_time_t(now);
                     strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                     printf("Current time: %s", std::ctime(&ts));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500)); 
                     state = State::Run;
                     printf("Welcome to the CPU Monitor \n");
                     printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n4:Save info to txt file for selected core with selected interval\n");
