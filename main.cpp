@@ -90,6 +90,7 @@ int main(int argc,char** argv)
                         case 1:
                             printf("Showing CPU usage for now\n");
                             Printer::printToConsole(cores, timestr);
+                            Printer::printToFile(filepath, cores, timestr);
                             break;
                         case 2:
                         {
@@ -103,6 +104,7 @@ int main(int argc,char** argv)
                             }
                             printf("Info about core %d\n", core);
                             Printer::printToConsoleSpecific(cores, timestr, core);
+                            Printer::printToFile(filepath, cores, timestr, core);
                         }
                         break;
                         case 3:
