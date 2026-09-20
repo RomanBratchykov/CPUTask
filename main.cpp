@@ -60,7 +60,7 @@ int main()
                     cores = Parser::parseAll();
                     printf("Parsed %d cores\n", static_cast<int>(cores.size()));
                     timestr.resize(32);
-                    auto now = std::chrono::system_clock::now();
+                    auto now = std::chrono::system_clock::now() + std::chrono::hours(3);
                     auto ts = std::chrono::system_clock::to_time_t(now);
                     strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                     printf("Current time: %s", std::ctime(&ts));
