@@ -27,7 +27,7 @@ void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatil
         std::this_thread::sleep_for(std::chrono::milliseconds(interval));
         Parser::updateAll(cpu_cores);
 
-        auto ts = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        auto ts = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + std::chrono::hours(3));
         char buf[32];
         strftime(buf, sizeof(buf), "%H:%M:%S", std::localtime(&ts));
         file << "Current time: " << buf << std::endl;
@@ -36,6 +36,38 @@ void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatil
         {
             file << "Core Name: cpu" << cpu_core.number << " Core Load: " << cpu_core.load << "%" << std::endl;
         }
+        file << std::endl;
+    }
+    file.close();
+}
+
+void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatile sig_atomic_t const& running, int core)
+{
+    if (interval <= 0)
+    {
+        throw std::invalid_argument("Interval must be greater than zero");
+    }
+
+    std::ofstream file("/tmp/output.txt", std::ios::app);
+    if (!file.is_open())
+    {
+        perror("fopen");
+        throw std::runtime_error("Unable to open file for writing");
+    }
+
+    while (running)
+    {
+        printf("Writing to file...\n");
+        std::this_thread::sleep_for(std::chrono::milliseconds(interval));
+        Parser::updateAll(cpu_cores);
+
+        auto ts = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now() + std::chrono::hours(3));
+        char buf[32];
+        strftime(buf, sizeof(buf), "%H:%M:%S", std::localtime(&ts));
+        file << "Current time: " << buf << std::endl;
+
+        file << "Core Name: cpu" << cpu_cores[core].number << " Core Load: " << cpu_cores[core].load << "%" << std::endl;
+
         file << std::endl;
     }
     file.close();

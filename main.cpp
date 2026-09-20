@@ -66,7 +66,7 @@ int main()
                     printf("Current time: %s", std::ctime(&ts));
                     state = State::Run;
                     printf("Welcome to the CPU Monitor \n");
-                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n");
+                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n4:Save info to txt file for selected core with selected interval\n");
 
                 }
                 catch(std::exception& e)
@@ -88,7 +88,7 @@ int main()
                         {
                             printf("Showing CPU usage for now\n");
                             Parser::updateAll(cores);
-                            auto now = std::chrono::system_clock::now();
+                            auto now = std::chrono::system_clock::now() + std::chrono::hours(3);
                             auto ts = std::chrono::system_clock::to_time_t(now);
                             strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Printer::printToConsole(cores, timestr);
@@ -106,7 +106,7 @@ int main()
                                 break;
                             }
                             printf("Info about core %d\n", core);
-                            auto now = std::chrono::system_clock::now();
+                            auto now = std::chrono::system_clock::now() + std::chrono::hours(3);
                             auto ts = std::chrono::system_clock::to_time_t(now);
                             strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Parser::updateAll(cores);
@@ -119,13 +119,37 @@ int main()
                             printf("Enter interval in milliseconds, Ctrl+C to stop: \n");
                             int interval = 0;
                             scanf("%d", &interval);
-                            auto now = std::chrono::system_clock::now();
-                            auto ts = std::chrono::system_clock::to_time_t(now);
-                            strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
+                            if (interval <= 0)
+                            {
+                                printf("Error, interval must be greater than zero: \n");
+                                break;
+                            }
                             Parser::updateAll(cores);
                             Printer::printToFile(interval, cores, running);
                         }
                             break;
+                        case 4:
+                        {
+                            printf("Enter core number: \n");
+                            int core = 0;
+                            scanf("%d", &core);
+                            if (core < 0 || static_cast<size_t>(core) >= cores.size())
+                            {
+                                printf("Error, you are not in core range: \n");
+                                break;
+                            }
+                            printf("Enter interval in milliseconds, Ctrl+C to stop: \n");
+                            int interval = 0;
+                            scanf("%d", &interval);
+                            if (interval <= 0)
+                            {
+                                printf("Error, interval must be greater than zero: \n");
+                                break;
+                            }
+                            printf("Info about core %d\n", core);
+                            Parser::updateAll(cores);
+                            Printer::printToFile(interval, cores, running, core);
+                        }
                         default:
                             printf("Invalid option, please try again.\n");
                             break;
