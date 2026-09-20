@@ -37,15 +37,7 @@ int main(int argc,char** argv)
         {
             case State::Init:
                 printf("Initializing\nReading file..\n");
-                auto now = std::chrono::system_clock::now();
-                auto time = std::chrono::system_clock::to_time_t(now);
-                int fd = open("/proc/stat", O_RDONLY);
-                if (fd == -1)
-                {
-                    printf("Error opening /proc/stat\n");
-                    return 1;
-                }
-                printf("File read successfully\n");
+                auto cores = Parser::parseAll();
                 state = State::Run;
                 break;
             case State::Run:
@@ -58,7 +50,11 @@ int main(int argc,char** argv)
                     case 1:
 
                         printf("Showing CPU usage for now\n");
+                        foreach(auto core in cores)
+                        {
+                            printf("Core Name:%s\n", core.name);
 
+                        }
                         break;
                     case 2:
                         printf("Starting writing info to txt file\n");
