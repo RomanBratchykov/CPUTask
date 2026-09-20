@@ -15,7 +15,7 @@ struct CpuCore
     std::uint64_t irq;
     std::uint64_t softirq;
     std::uint64_t steal;
-    std::uint64_t load;
+    double load;
 };
 
 class Parser
