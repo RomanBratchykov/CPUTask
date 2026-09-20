@@ -1,3 +1,7 @@
 build
 cmake-build-debug
 .idea
+bazel-bin
+bazel-CPUTask
+bazel-out
+bazel-testlogs

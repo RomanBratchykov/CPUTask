@@ -1,0 +1,22 @@
+CPU Load Monitoring application
+
+Create CMD line application to monitor CPU cores load in the system. Application shall print CPU load for every core by request.
+
+Requirements:
+1. This shall be CMD line application.
+2. Application shall have 2 states - Init and Run. Application moves to the Run state automatically when the Init state finishes.
+3. In case of any dynamic memory allocations - they shall be moved to Init state, if possible. It is preferable not to have dynamic memory allocation in the Run state.
+4. By request - application shall print CPU core load into stdout.
+5. Use POSIX-compliant APIs only.
+6. Use up to C++17 standard.
+7. RAII usage.
+
+Nice to have:
+1. Use Bazel to build application.
+2. With every N seconds (value shall be configurable), application shall print CPU core load to file. N seconds and file name passed to the app as command line arguments.
+
+If something is unclear, make your own decision. Please describe and provide your decision and justification in a separate file.
+
+To speed up development, it is recommended to use an AI agent/assistant.
+
+The final solution must be downloaded at GitHub.
