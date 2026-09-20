@@ -23,7 +23,7 @@ enum class State
 std::atomic<bool> running{true};
 
 void my_handler(int s){
-    const char message[] = "/nGently stopping/n";
+    const char message[] = "\nGently stopping\n";
     write(STDOUT_FILENO, message, strlen(message));
     running = false;
 }
@@ -34,31 +34,44 @@ int main(int argc,char** argv)
     sig.sa_handler = my_handler;
     sig.sa_flags = 0;
     sigemptyset(&sig.sa_mask);
+    std::vector<CpuCore> cores;
+    std::string timestr;
     State state = State::Init;
     while (running)
     {
         switch(state)
         {
             case State::Init:
-                printf("Initializing\nReading file..\n");
-                auto cores_first = Parser::parseAll();
-                printf("Conting load..\n");
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                auto cores_second = Parser::parseAll();
-                printf("Creating load data..\n");
-                auto cores = Calculator::acceptLoad(cores_first, cores_second);
-                printf("Parsed %d cores\n", static_cast<int>(cores.size()));
-                auto now = std::chrono::system_clock::now();
-                auto time = std::chrono::system_clock::to_time_t(now);
-                std::string timestr = std::ctime(&time);
-                printf("Current time: %s", std::ctime(&time));
-                state = State::Run;
+            {
+                try
+                {
+                    printf("Initializing\nReading file..\n");
+                    auto cores_first = Parser::parseAll();
+                    printf("Conting load..\n");
+                    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                    auto cores_second = Parser::parseAll();
+                    printf("Creating load data..\n");
+                    cores = Calculator::acceptLoad(cores_first, cores_second);
+                    printf("Parsed %d cores\n", static_cast<int>(cores.size()));
+                    auto now = std::chrono::system_clock::now();
+                    auto time = std::chrono::system_clock::to_time_t(now);
+                    timestr = std::ctime(&time);
+                    printf("Current time: %s", std::ctime(&time));
+                    state = State::Run;
+                }
+                catch(std::exception& e)
+                {
+                    printf("Error occurred: %s\n", e.what());
+                }
+            }
+
                 break;
             case State::Run:
+            {
                 try
                 {
                     printf("Welcome to the CPU Monitor \n");
-                    printf("Enter desired proccess:/n1:Show CPU usage for now./n2:Start writing info to txt file for each core and selected time./n3:Save info to txt file for selected core and selected time/n4:Enter realtime monitoring and write to file./n5:Enter realtime monitoring and write to file for specific core and specific time./nCtrl+C to stop.");
+                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to txt file for each core and selected time.\n3:Save info to txt file for selected core and selected time\n4:Enter realtime monitoring and write to file.\n5:Enter realtime monitoring and write to file for specific core and specific time.\nEnter your choice:\n");
                     int menu = 0;
                     scanf("%d", &menu);
                     switch (menu)
@@ -85,10 +98,17 @@ int main(int argc,char** argv)
                         state = State::Stop;
                     }
                 }
-                catch(std::exception& e) {}
+                catch(std::exception& e)
+                {
+                    printf("Error occurred: %s\n", e.what());
+                }
+            }
+
                 break;
             case State::Stop:
-                running = false;
+            {
+                 running = false;
+            }
                 break;
         }
     }
