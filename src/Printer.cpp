@@ -7,14 +7,14 @@
 #include <thread>
 #include <iomanip>
 
-void Printer::printToFile(std::filesystem::path const& path, int interval, std::vector<CpuCore>& cpu_cores, volatile sig_atomic_t const& running)
+void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatile sig_atomic_t const& running)
 {
     if (interval <= 0)
     {
         throw std::invalid_argument("Interval must be greater than zero");
     }
 
-    std::ofstream file(path, std::ios::app);
+    std::ofstream file("output.txt", std::ios::app);
     if (!file.is_open())
     {
         throw std::runtime_error("Unable to open file for writing");
@@ -26,6 +26,11 @@ void Printer::printToFile(std::filesystem::path const& path, int interval, std::
         std::this_thread::sleep_for(std::chrono::milliseconds(interval));
         Parser::updateAll(cpu_cores);
 
+        auto ts = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        char buf[32];
+        strftime(buf, sizeof(buf), "%H:%M:%S", std::localtime(&ts));
+        file << "Current time: " << buf << std::endl;
+
         for (const auto& cpu_core : cpu_cores)
         {
             file << "Core Name: cpu" << cpu_core.number << " Core Load: " << cpu_core.load << "%" << std::endl;
@@ -34,9 +39,10 @@ void Printer::printToFile(std::filesystem::path const& path, int interval, std::
     }
     file.close();
 }
-void Printer::printToFile(std::filesystem::path const& path, std::vector<CpuCore>& cpu_cores, std::string const& time)
+
+void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& time)
 {
-    std::ofstream file(path, std::ios::app);
+    std::ofstream file("output.txt", std::ios::app);
     if (!file.is_open())
     {
         throw std::runtime_error("Unable to open file for writing");
@@ -53,9 +59,9 @@ void Printer::printToFile(std::filesystem::path const& path, std::vector<CpuCore
     file.close();
 }
 
-void Printer::printToFile(std::filesystem::path const& path, std::vector<CpuCore>& cpu_cores, std::string const& time, int core)
+void Printer::printToFile(std::vector<CpuCore>& cpu_cores, std::string const& time, int core)
 {
-    std::ofstream file(path, std::ios::app);
+    std::ofstream file("output.txt", std::ios::app);
     if (!file.is_open())
     {
         throw std::runtime_error("Unable to open file for writing");
@@ -81,6 +87,7 @@ void Printer::printToConsole(std::vector<CpuCore>& cpu_cores, std::string const&
         std::cout << "Core Name: cpu" << cpu_core.number << " Core Load: " << std::fixed << std::setprecision(2) << cpu_core.load << "%" << std::endl;
     }
 }
+
 void Printer::printToConsoleSpecific(std::vector<CpuCore>& cpu_cores, std::string const& time, int core)
 {
     std::cout << "Printing to console..." << std::endl;

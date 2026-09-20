@@ -64,8 +64,6 @@ int main()
                     auto ts = std::chrono::system_clock::to_time_t(now);
                     strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                     printf("Current time: %s", std::ctime(&ts));
-                    printf("enter filepath for saving your info:\n");
-                    std::cin >> filepath;
                     state = State::Run;
                     printf("Welcome to the CPU Monitor \n");
                     printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n");
@@ -94,7 +92,7 @@ int main()
                             auto ts = std::chrono::system_clock::to_time_t(now);
                             strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Printer::printToConsole(cores, timestr);
-                            Printer::printToFile(filepath, cores, timestr);
+                            Printer::printToFile(cores, timestr);
                             break;
                         }
                         case 2:
@@ -113,7 +111,7 @@ int main()
                             strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Parser::updateAll(cores);
                             Printer::printToConsoleSpecific(cores, timestr, core);
-                            Printer::printToFile(filepath, cores, timestr, core);
+                            Printer::printToFile(cores, timestr, core);
                         }
                         break;
                         case 3:
@@ -125,7 +123,7 @@ int main()
                             auto ts = std::chrono::system_clock::to_time_t(now);
                             strftime(timestr.data(), timestr.size(), "%H:%M:%S", std::localtime(&ts));
                             Parser::updateAll(cores);
-                            Printer::printToFile(filepath, interval, cores, running);
+                            Printer::printToFile(interval, cores, running);
                         }
                             break;
                         default:
