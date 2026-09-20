@@ -5,3 +5,4 @@ bazel-bin
 bazel-CPUTask
 bazel-out
 bazel-testlogs
+test.txt

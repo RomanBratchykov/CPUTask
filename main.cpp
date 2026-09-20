@@ -11,7 +11,7 @@
 #include <thread>
 #include <unistd.h>
 #include <cstring>
-#include <ostream>
+#include <iostream>
 
 
 enum class State
@@ -31,13 +31,15 @@ void my_handler(int s){
 
 int main(int argc,char** argv)
 {
+    State state = State::Init;
     struct sigaction sig{};
     sig.sa_handler = my_handler;
     sig.sa_flags = 0;
     sigemptyset(&sig.sa_mask);
     std::vector<CpuCore> cores;
     std::string timestr;
-    State state = State::Init;
+    std::string filepath = "";
+
     while (running)
     {
         switch(state)
@@ -63,9 +65,11 @@ int main(int argc,char** argv)
 
                     timestr = oss.str();
                     printf("Current time: %s", std::ctime(&time));
+                    printf("enter filepath for saving your info:\n");
+                    std::cin >> filepath;
                     state = State::Run;
                     printf("Welcome to the CPU Monitor \n");
-                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for selected core and selected time\n4:Enter realtime monitoring and write to file.\n5:Enter realtime monitoring and write to file for specific core and specific time.\n");
+                    printf("Enter desired proccess:\n1:Show CPU usage for now.\n2:Start writing info to console for each core and selected time.\n3:Save info to txt file for all cores with selected interval\n4:Enter realtime monitoring and write to file.\n5:Enter realtime monitoring and write to file for specific core and specific time.\n");
 
                 }
                 catch(std::exception& e)
@@ -73,7 +77,6 @@ int main(int argc,char** argv)
                     printf("Error occurred: %s\n", e.what());
                 }
             }
-
                 break;
             case State::Run:
             {
@@ -103,7 +106,12 @@ int main(int argc,char** argv)
                         }
                         break;
                         case 3:
-                            printf("Entering realtime monitoring\n");
+                        {
+                            printf("Enter interval in milliseconds, Ctrl+C to stop: \n");
+                            int interval = 0;
+                            scanf("%d", &interval);
+                            Printer::printToFile(filepath, interval);
+                        }
                             break;
                         case 4:
                             printf("Entering realtime monitoring and writing to file\n");
