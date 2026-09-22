@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <thread>
 #include <iomanip>
+#include <atomic>
 
 void Printer::printToFile(int interval, std::vector<CpuCore>& cpu_cores, volatile sig_atomic_t const& running)
 {
